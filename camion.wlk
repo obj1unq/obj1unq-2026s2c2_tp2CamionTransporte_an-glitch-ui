@@ -59,7 +59,7 @@ object camion {
 		cosas.forEach({c=>c.accidentar()})
 	}
 
-	method transportarPor(destino, camino) {
+	method transportar(destino, camino) {
 		self.validarTransportePor(camino)
 		cosas.forEach({c => destino.agregarAlInventario(c)})
 		cosas.clear()

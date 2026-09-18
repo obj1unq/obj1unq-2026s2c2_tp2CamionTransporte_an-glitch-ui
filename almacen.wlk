@@ -1,7 +1,7 @@
 import camion.*
 
 object almacen {
-    const inventario = #{}
+    const property inventario = #{}
 
 
     method agregarAlInventario(elem) { inventario.add(elem) }

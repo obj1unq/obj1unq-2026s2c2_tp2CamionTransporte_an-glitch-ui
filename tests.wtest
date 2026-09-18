@@ -18,8 +18,8 @@ describe "todas las pruebas" {
     assert.that(camion.cosas().contains(knightRider))
 
     assert.throwsException({ 
-        camion.cargar(knightRider)
-      camion.descargar(bumblebeeRobot) })
+    camion.cargar(knightRider)
+    camion.descargar(bumblebeeRobot) })
   }
 
   test "2.2 a - Todo peso par" {
@@ -240,5 +240,85 @@ describe "todas las pruebas" {
     assert.equals(45, residuosRadioactivos.peso())
     assert.equals(0, ladrillos.cantLadrillos())
     assert.equals(0, bateriaAntiaereaSinMisiles.nivelPeligrosidad())
+  }
+
+  test "ruta 9 exitoso" {
+    almacen.agregarAlInventario(knightRider)
+    almacen.agregarAlInventario(residuosRadioactivos)
+    camion.cargar(bumblebeeAuto)
+    arenaAGranel.peso(50)
+    camion.cargar(arenaAGranel)
+
+    camion.transportar(almacen, ruta9)
+
+    assert.that(almacen.inventario().contains(knightRider))
+    assert.that(almacen.inventario().contains(residuosRadioactivos))
+    assert.that(almacen.inventario().contains(bumblebeeAuto))
+    assert.that(almacen.inventario().contains(arenaAGranel))
+    assert.that(camion.cosas().isEmpty())
+  }
+
+  test "ruta 9 fallido por peligrosidad" {
+    almacen.agregarAlInventario(knightRider)
+    almacen.agregarAlInventario(residuosRadioactivos)
+    camion.cargar(bumblebeeRobot)
+    arenaAGranel.peso(50)
+    camion.cargar(arenaAGranel)
+
+    assert.throwsException({ camion.transportar(almacen, ruta9) })
+
+    assert.that(almacen.inventario().contains(knightRider))
+    assert.that(almacen.inventario().contains(residuosRadioactivos))
+    assert.notThat(almacen.inventario().contains(bumblebeeRobot))
+    assert.that(camion.cosas().contains(bumblebeeRobot))
+    assert.that(camion.cosas().contains(arenaAGranel))
+  }
+
+  test "ruta 9 fallido por exceso de peso" {
+    almacen.agregarAlInventario(knightRider)
+    almacen.agregarAlInventario(residuosRadioactivos)
+    camion.cargar(bumblebeeAuto)
+    arenaAGranel.peso(2000)
+    camion.cargar(arenaAGranel)
+
+    assert.throwsException({ camion.transportar(almacen, ruta9) })
+
+    assert.that(almacen.inventario().contains(knightRider))
+    assert.that(almacen.inventario().contains(residuosRadioactivos))
+    assert.that(camion.cosas().contains(bumblebeeAuto))
+    assert.that(camion.cosas().contains(arenaAGranel))
+  }
+
+  test "caminos vecinales exitoso" {
+    almacen.agregarAlInventario(knightRider)
+    almacen.agregarAlInventario(residuosRadioactivos)
+    camion.cargar(bumblebeeAuto)
+    arenaAGranel.peso(50)
+    camion.cargar(arenaAGranel)
+    caminoVecinal.pesoMaximo(2000)
+
+    camion.transportar(almacen, caminoVecinal)
+
+    assert.that(almacen.inventario().contains(knightRider))
+    assert.that(almacen.inventario().contains(residuosRadioactivos))
+    assert.that(almacen.inventario().contains(bumblebeeAuto))
+    assert.that(almacen.inventario().contains(arenaAGranel))
+    assert.that(camion.cosas().isEmpty())
+  }
+
+  test "caminos vecinales fallido" {
+    almacen.agregarAlInventario(knightRider)
+    almacen.agregarAlInventario(residuosRadioactivos)
+    camion.cargar(bumblebeeAuto)
+    arenaAGranel.peso(50)
+    camion.cargar(arenaAGranel)
+    caminoVecinal.pesoMaximo(300)
+
+    assert.throwsException({ camion.transportar(almacen, caminoVecinal) })
+
+    assert.that(almacen.inventario().contains(knightRider))
+    assert.that(almacen.inventario().contains(residuosRadioactivos))
+    assert.that(camion.cosas().contains(bumblebeeAuto))
+    assert.that(camion.cosas().contains(arenaAGranel))
   }
 }
