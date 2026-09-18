@@ -1,4 +1,6 @@
 import cosas.*
+import almacen.*
+
 
 object camion {
 	const property cosas = #{}
@@ -45,6 +47,27 @@ object camion {
 
 	method puedeCircularEnRutaDeNivel(n) = not self.seExcedeDelPeso() && self.cosasMasPeligrosasQueLaPeligrosidadDe(n).isEmpty()
 
-	//2.8
+	method hayAlgoEntre(numMin, numMax) = cosas.any({c=>c.peso() >= numMin and c.peso() <= numMax})
 
+	method elementoMasPesado() = cosas.max({c=>c.peso()})
+
+	method pesosDeCadaE() = cosas.map({c=>c.peso()})
+
+	method totalBultos() = cosas.sum({c => c.cantBultos()})
+
+	method sufrirAccidente() {
+		cosas.forEach({c=>c.accidentar()})
+	}
+
+	method transportarPor(destino, camino) {
+		self.validarTransportePor(camino)
+		cosas.forEach({c => destino.agregarAlInventario(c)})
+		cosas.clear()
+	}
+
+	method validarTransportePor(camino) {
+		if(!camino.puedeSoportar(cosas)){
+			self.error("No es posible circular por el camino "+camino)
+		}
+	}
 }

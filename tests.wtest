@@ -1,5 +1,10 @@
 import cosas.*
 import camion.*
+import almacen.*
+import caminos.*
+
+
+
 describe "todas las pruebas" {
   test "2.1 - Carga y Descarga" {
     camion.cargar(bumblebeeRobot)  //si no puede existir un único objeto 'bumblebee', al menos deberían especificar qué tipo de transformer usar, tanto para este test como para otros...
@@ -119,7 +124,121 @@ describe "todas las pruebas" {
     assert.equals(0, contenedorPortuario.nivelPeligrosidad())
 
     contenedorPortuario.cargar(knightRider)
-    arenaAGranel.peso(650)
+    arenaAGranel.peso(50)
     contenedorPortuario.cargar(arenaAGranel)
+    assert.equals(650, contenedorPortuario.peso())
+    assert.equals(10, contenedorPortuario.nivelPeligrosidad())
+
+    embalajeDeSeguridad.envolver(knightRider)
+    assert.equals(500, embalajeDeSeguridad.peso())
+    assert.equals(5, embalajeDeSeguridad.nivelPeligrosidad())
+
+    embalajeDeSeguridad.envolver(bumblebeeAuto)
+    assert.equals(800, embalajeDeSeguridad.peso())
+    assert.equals(7.5, embalajeDeSeguridad.nivelPeligrosidad())
+  }
+
+  test "2.9 - peso entre a y b" {
+    ladrillos.cantLadrillos(300)
+    camion.cargar(ladrillos)
+    camion.cargar(bumblebeeAuto)
+
+    assert.that(camion.hayAlgoEntre(5, 700))
+    assert.that(camion.hayAlgoEntre(5, 1000))
+    assert.notThat(camion.hayAlgoEntre(900, 1000))
+  }
+
+  test "2.10 - elem + pesado" {
+    assert.throwsException({ camion.elementoMasPesado() })
+
+    camion.cargar(bumblebeeAuto)
+    ladrillos.cantLadrillos(300)
+    camion.cargar(ladrillos)
+    assert.equals(bumblebeeAuto, camion.elementoMasPesado())
+  }
+
+  test "2.11 - pesos" {
+    camion.cargar(bumblebeeAuto)
+    ladrillos.cantLadrillos(300)
+    camion.cargar(ladrillos)
+
+    assert.equals([800,600], camion.pesosDeCadaE())
+  }
+
+  test "2.12 a - cantidad de bultos caso 1" {
+    contenedorPortuario.cargar(knightRider)
+    contenedorPortuario.cargar(bumblebeeAuto)
+    embalajeDeSeguridad.envolver(residuosRadioactivos)
+    arenaAGranel.peso(50)
+    ladrillos.cantLadrillos(50)
+
+    camion.cargar(contenedorPortuario)
+    camion.cargar(embalajeDeSeguridad)
+    camion.cargar(arenaAGranel)
+    camion.cargar(ladrillos)
+    camion.cargar(bateriaAntiaereaSinMisiles)
+
+    assert.equals(9, camion.totalBultos())
+  }
+
+  test "2.12 b - cantidad de bultos caso 2" {
+    ladrillos.cantLadrillos(150)
+
+    camion.cargar(ladrillos)
+    camion.cargar(bateriaAntiaereaConMisiles)
+    camion.cargar(contenedorPortuario)
+
+    assert.equals(5, camion.totalBultos())
+  }
+
+  test "2.12 c - cantidad de bultos caso 3" {
+    ladrillos.cantLadrillos(350)
+    arenaAGranel.peso(50)
+
+    camion.cargar(ladrillos)
+    camion.cargar(arenaAGranel)
+
+    assert.equals(4, camion.totalBultos())
+  }
+
+  test "2.13 - accidente caso 1" {
+    contenedorPortuario.cargar(knightRider)
+    contenedorPortuario.cargar(bumblebeeAuto)
+    embalajeDeSeguridad.envolver(residuosRadioactivos)
+    residuosRadioactivos.peso(30)
+    arenaAGranel.peso(50)
+    ladrillos.cantLadrillos(100)
+
+    camion.cargar(contenedorPortuario)
+    camion.cargar(embalajeDeSeguridad)
+    camion.cargar(arenaAGranel)
+    camion.cargar(ladrillos)
+    camion.cargar(bateriaAntiaereaConMisiles)
+
+    camion.sufrirAccidente()
+
+    assert.equals(30, bumblebeeAuto.nivelPeligrosidad())
+    assert.equals(30, residuosRadioactivos.peso())
+    assert.equals(70, arenaAGranel.peso())
+    assert.equals(88, ladrillos.cantLadrillos())
+    assert.equals(0, bateriaAntiaereaConMisiles.nivelPeligrosidad())
+    assert.equals(200, bateriaAntiaereaConMisiles.peso())
+  }
+
+  test "2.13 - accidente caso 2" {
+    residuosRadioactivos.peso(30)
+    ladrillos.cantLadrillos(10)
+
+    camion.cargar(bumblebeeRobot)
+    camion.cargar(residuosRadioactivos)
+    camion.cargar(ladrillos)
+    camion.cargar(bateriaAntiaereaSinMisiles)
+
+    camion.sufrirAccidente()
+
+    assert.equals(15, bumblebeeRobot.nivelPeligrosidad())
+    assert.equals(45, residuosRadioactivos.peso())
+    assert.equals(0, ladrillos.cantLadrillos())
+    assert.equals(0, bateriaAntiaereaSinMisiles.nivelPeligrosidad())
   }
 }

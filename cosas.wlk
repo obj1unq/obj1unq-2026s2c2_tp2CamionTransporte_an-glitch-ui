@@ -2,59 +2,76 @@
 object knightRider {
 	method peso() = 500
 	method nivelPeligrosidad() = 10
+	method cantBultos() = 1
+	method accidentar() {}
 }
 
 object arenaAGranel {
 	var property peso = 0
 
 
-	//method peso(_peso) { 
-	//	peso = _peso 
-	//}
-
-	//method peso() = peso
-
 	method nivelPeligrosidad() = 1
+	method cantBultos() = 1
+	method accidentar() { peso += 20 }
 }
 
 object bumblebeeAuto {
+	var modoAuto = true
+
 	method peso() = 800
-	method nivelPeligrosidad() = 15
+	method nivelPeligrosidad() = if (modoAuto) {15} else {30}
+	method cantBultos() = 2
+	method accidentar() { modoAuto = !modoAuto }
 }
 
 object bumblebeeRobot {
+	var modoAuto = false
+
 	method peso() = 800
-	method nivelPeligrosidad() = 30 
+	method nivelPeligrosidad() = if (modoAuto) {15} else {30}
+	method cantBultos() = 2
+	method accidentar() { modoAuto = !modoAuto }
 }
 
 object ladrillos {
-	var cantLadrillos = 0
+	var property cantLadrillos = 0
 
 
 	method peso() = 2*cantLadrillos
 	method nivelPeligrosidad() = 2
-	method cantLadrillos(_cantLadrillos) {
-	    cantLadrillos = _cantLadrillos
-	}
+
+	method cantBultos() = if (cantLadrillos <= 100){
+		1
+	} else if(cantLadrillos <= 300){
+		2
+	} else{3}
+
+	method accidentar() { if(cantLadrillos > 12){self.cantLadrillos(cantLadrillos-12)} else{self.cantLadrillos(0)} }
 }
 
 object bateriaAntiaereaConMisiles {
-	method peso() = 300
-	method nivelPeligrosidad() = 100
+	var tieneMisiles = true
+
+	method peso() = if (tieneMisiles) {300} else {200}
+	method nivelPeligrosidad() = if (tieneMisiles) {100} else {0}
+	method cantBultos() = 2
+	method accidentar() { tieneMisiles = false }
 }
 
 object bateriaAntiaereaSinMisiles {
 	method peso() = 200
 	method nivelPeligrosidad() = 0
+	method cantBultos() = 1
+	method accidentar() {}
 }
-
-
 
 object residuosRadioactivos {
 	var property peso = 0
 
 
 	method nivelPeligrosidad() = 200
+	method cantBultos() = 1
+	method accidentar() {peso+=15}
 }
 
 object contenedorPortuario {
@@ -68,13 +85,17 @@ object contenedorPortuario {
 		carga.remove(elemento)
 	}
 
-	method peso() = 100
+	method peso() = 100 + carga.sum({c => c.peso()})
 
 	method nivelPeligrosidad() = if (!carga.isEmpty()){
-		self.cosaMasPeligrosaCargada().peso()
+		self.cosaMasPeligrosaCargada().nivelPeligrosidad()
 	} else{0}
 
 	method cosaMasPeligrosaCargada() = carga.max({c=>c.nivelPeligrosidad()})
+
+	method cantBultos() = 1 + carga.sum({c=>c.cantBultos()}) // usa 1 bulto más de la cantidad de bultos que usan las cosas que tiene adentro.
+
+	method accidentar() {carga.forEach({c=>c.accidentar()})}
 }
 
 object embalajeDeSeguridad {
@@ -86,6 +107,9 @@ object embalajeDeSeguridad {
 
 	method peso() = elementoQueEnvuelve.peso()
 	method nivelPeligrosidad() = elementoQueEnvuelve.nivelPeligrosidad()/2
+	method cantBultos() = 2
+
+	method accidentar() {}
 }
 
 
