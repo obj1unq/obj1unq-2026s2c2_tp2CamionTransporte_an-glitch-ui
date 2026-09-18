@@ -1,0 +1,125 @@
+import cosas.*
+import camion.*
+describe "todas las pruebas" {
+  test "2.1 - Carga y Descarga" {
+    camion.cargar(bumblebeeRobot)  //si no puede existir un único objeto 'bumblebee', al menos deberían especificar qué tipo de transformer usar, tanto para este test como para otros...
+    assert.that(camion.cosas().contains(bumblebeeRobot))
+
+    camion.cargar(knightRider)
+    assert.that(camion.cosas().contains(bumblebeeRobot))
+    assert.that(camion.cosas().contains(knightRider))
+
+    camion.descargar(bumblebeeRobot)
+    assert.that(camion.cosas().contains(knightRider))
+
+    assert.throwsException({ 
+        camion.cargar(knightRider)
+      camion.descargar(bumblebeeRobot) })
+  }
+
+  test "2.2 a - Todo peso par" {
+    arenaAGranel.peso(50)
+    camion.cargar(bumblebeeRobot)
+    camion.cargar(arenaAGranel)
+    assert.that(camion.todosTienenPesoPar())
+  }
+
+  test "2.2 b - Todo peso par" {
+    arenaAGranel.peso(51)
+    camion.cargar(arenaAGranel)
+    camion.cargar(bumblebeeRobot)
+    assert.notThat(camion.todosTienenPesoPar())
+  }
+
+  test "2.3 - peso X kl" {
+    camion.cargar(bumblebeeRobot)
+    arenaAGranel.peso(50)
+    camion.cargar(arenaAGranel)
+
+    assert.that(camion.hayAlgunElementoQuePese(50))
+    assert.that(camion.hayAlgunElementoQuePese(800))
+    assert.notThat(camion.hayAlgunElementoQuePese(500))
+  }
+
+  test "2.4 a - peso y exceso de peso" {
+    camion.cargar(bumblebeeRobot)
+    ladrillos.cantLadrillos(300)
+    camion.cargar(ladrillos)
+
+    assert.notThat(camion.seExcedeDelPeso())
+  }
+
+  test "2.4 b - peso y exceso de peso" {
+    camion.cargar(bumblebeeRobot)
+    ladrillos.cantLadrillos(400)
+    camion.cargar(ladrillos)
+
+    assert.that(camion.seExcedeDelPeso())
+  }
+
+  test "2.5 a - peligrosidad X" {
+    camion.cargar(bumblebeeAuto)
+    camion.cargar(bateriaAntiaereaSinMisiles)
+    camion.cargar(residuosRadioactivos)
+
+    assert.equals(bateriaAntiaereaSinMisiles, camion.elementoConPeligrosidad(0))
+    assert.equals(bumblebeeAuto, camion.elementoConPeligrosidad(15))
+    assert.equals(residuosRadioactivos, camion.elementoConPeligrosidad(200))
+    assert.throwsException({ camion.elementoConPeligrosidad(30) })
+  }
+
+  test "2.5 b - peligrosidad X" {
+    camion.cargar(bumblebeeRobot)
+    camion.cargar(bateriaAntiaereaConMisiles)
+    camion.cargar(residuosRadioactivos)
+
+    assert.equals(bateriaAntiaereaConMisiles, camion.elementoConPeligrosidad(100))
+    assert.equals(bumblebeeRobot, camion.elementoConPeligrosidad(30))
+    assert.equals(residuosRadioactivos, camion.elementoConPeligrosidad(200))
+  }
+
+  test "2.6 - cosas peligrosas" {
+    camion.cargar(knightRider)
+    camion.cargar(bateriaAntiaereaConMisiles)
+
+    assert.equals(#{bateriaAntiaereaConMisiles}, camion.cosasMasPeligrosasQueLaPeligrosidadDe(15))
+    assert.equals(#{bateriaAntiaereaConMisiles}, camion.cosasMasPeligrosasQue(bumblebeeRobot))
+    assert.equals(#{knightRider, bateriaAntiaereaConMisiles}, camion.cosasMasPeligrosasQueLaPeligrosidadDe(2))
+    assert.equals(#{knightRider, bateriaAntiaereaConMisiles}, camion.cosasMasPeligrosasQue(ladrillos))
+    assert.equals(#{}, camion.cosasMasPeligrosasQueLaPeligrosidadDe(200))
+    assert.equals(#{}, camion.cosasMasPeligrosasQue(residuosRadioactivos))
+  }
+
+  test "2.7 a - puede circular en ruta" {
+    camion.cargar(bumblebeeAuto)
+    ladrillos.cantLadrillos(300)
+    camion.cargar(ladrillos)
+
+    assert.that(camion.puedeCircularEnRutaDeNivel(20))
+  }
+
+  test "2.7 b - puede circular en ruta" {
+    camion.cargar(bumblebeeAuto)
+    ladrillos.cantLadrillos(400)
+    camion.cargar(ladrillos)
+
+    assert.notThat(camion.puedeCircularEnRutaDeNivel(20))
+  }
+
+  test "2.7 c - puede circular en ruta" {
+    camion.cargar(bumblebeeRobot)
+    ladrillos.cantLadrillos(300)
+    camion.cargar(ladrillos)
+
+    assert.notThat(camion.puedeCircularEnRutaDeNivel(20))
+  }
+
+  test "2.8 - + cosas" {
+    assert.equals(100, contenedorPortuario.peso())
+    assert.equals(0, contenedorPortuario.nivelPeligrosidad())
+
+    contenedorPortuario.cargar(knightRider)
+    arenaAGranel.peso(650)
+    contenedorPortuario.cargar(arenaAGranel)
+  }
+}
